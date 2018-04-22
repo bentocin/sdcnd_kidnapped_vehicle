@@ -203,8 +203,6 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
 			double dist_y = o_y - pred_y;
 			particles[i].weight *= denominator_overall * exp(-((dist_x * dist_x)/denominator_x + (dist_y * dist_y)/denominator_y));
 		}
-		// Add to particle filter weights
-		weights.push_back(particles[i].weight);
 	}
 }
 
@@ -213,8 +211,15 @@ void ParticleFilter::resample() {
 	// NOTE: You may find std::discrete_distribution helpful here.
 	//   http://en.cppreference.com/w/cpp/numeric/random/discrete_distribution
 
-	// Get the max weight
-	double max_weight = *max_element(weights.begin(), weights.end());
+	vector<double> weights;
+	double max_weight = numeric_limits<double>::min();
+	for (int i = 0; i < num_particles; i++) {
+		weights.push_back(particles[i].weight);
+		if (particles[i].weight > max_weight)
+		{
+			max_weight = particles[i].weight;
+		}
+	}
 
 	// Get random starting index for resampling
 	uniform_int_distribution<int> dist_int(0, num_particles - 1);
